@@ -54,3 +54,40 @@ print(type(tablenames))
 print(tablenames)   # empty list
 tablenames = meta.tables
 pprint.pprint(tablenames.items(), indent=4)
+
+
+# CRUD
+insert = students.insert().values(name="bob")
+print(insert)
+params = insert.compile().params
+print(params)
+
+# add record
+conn = engine.connect()
+insert = students.insert().values(name="bob", lastname='lom')
+result = conn.execute(insert)
+print(result.inserted_primary_key)
+
+# add multiple records
+result = conn.execute(
+    students.insert(),
+    dict(name='fab', lastname='cat'),
+    dict(name='one', lastname='guy')
+)
+print(result.inserted_primary_key_rows)
+
+# select records
+select = students.select()
+print(select)
+
+result = conn.execute(select)
+print(result.fetchone())
+for row in result:
+    print(row)
+
+# select records where
+select = students.select().where(students.c.id > 2)
+result = conn.execute(select)
+for row in result:
+    print(row)
+
