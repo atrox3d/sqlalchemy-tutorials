@@ -19,3 +19,15 @@ print(engine.driver)
 
 inspector: sqlalchemy.engine.reflection.Inspector = sqlalchemy.inspect(engine)
 print(inspector.get_table_names())
+
+meta = sqlalchemy.MetaData()
+
+students = sqlalchemy.Table(
+    'students',
+    meta,
+    sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column('name', sqlalchemy.String),
+    sqlalchemy.Column('lastname', sqlalchemy.String)
+)
+
+meta.create_all(engine)
