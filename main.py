@@ -6,6 +6,13 @@ import pprint
 
 
 def print_results(results, title="RESULTS"):
+    """
+    prints formatted rows in results
+
+    :param results:
+    :param title:
+    :return:
+    """
     print("RESULTS: ", results)
 
     lresults = list(results)
@@ -36,11 +43,21 @@ def print_query(select, title):
 
 
 def selectallorm():
+    """
+    select all using ORM
+
+    :return:
+    """
     select = students.select()
     print_query(select, "SELECT ALL")
 
 
 def selectalltext():
+    """
+    select all using text query
+
+    :return:
+    """
     select = sqlalchemy.sql.text("select * from students")
     print_query(select, "SELECT ALL TEXT")
 
@@ -73,12 +90,12 @@ meta = sqlalchemy.MetaData()
 # create table and update metadata
 ########################################################################################################################
 students = sqlalchemy.Table(
-    'students',  # table name
-    meta,  # metadata object
-    sqlalchemy.Column(  # define table column
-        'id',  # column name
-        sqlalchemy.Integer,  # column type
-        primary_key=True  # primary key
+    'students',                 # table name
+    meta,                       # metadata object
+    sqlalchemy.Column(          # define table column
+        'id',                   # column name
+        sqlalchemy.Integer,     # column type
+        primary_key=True        # primary key
     ),
     sqlalchemy.Column('name', sqlalchemy.String),
     sqlalchemy.Column('lastname', sqlalchemy.String)
