@@ -32,7 +32,9 @@ print(inspector.get_table_names())
 # metadata object: contains all the definitions
 meta = sqlalchemy.MetaData()
 
+########################################################################################################################
 # create table and update metadata
+########################################################################################################################
 students = sqlalchemy.Table(
     'students',                 # table name
     meta,                       # metadata object
@@ -193,3 +195,11 @@ print(frozen)
 for row in frozen:
     print(row)
 
+########################################################################################################################
+# aliases
+########################################################################################################################
+alias = students.alias("a")
+select = sqlalchemy.sql.select(alias).where(alias.c.id > 2)
+print(select)
+result = list(conn.execute(select))
+print(result)
