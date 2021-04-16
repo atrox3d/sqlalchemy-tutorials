@@ -1,4 +1,6 @@
+########################################################################################################################
 # https://www.tutorialspoint.com/sqlalchemy/sqlalchemy_core_connecting_to_database.htm
+########################################################################################################################
 import sqlalchemy
 import os
 import json
@@ -78,16 +80,18 @@ engine = sqlalchemy.create_engine(
 # print engine property
 print(engine.driver)
 
+########################################################################################################################
 # deprecated
 # print(sqlalchemy.engine.table_names())
 # deprecated
 # sqlalchemy.engine.reflection.Inspector.from_engine(engine).get_table_names()
+########################################################################################################################
 
 # metadata object: contains all the definitions
 meta = sqlalchemy.MetaData()
 
 ########################################################################################################################
-# create table and update metadata
+# CREATE TABLE AND UPDATE METADATA
 ########################################################################################################################
 students = sqlalchemy.Table(
     'students',                 # table name
@@ -105,7 +109,7 @@ students = sqlalchemy.Table(
 meta.create_all(engine)
 
 ########################################################################################################################
-# try reflection
+# TRY REFLECTION
 ########################################################################################################################
 # create inspector to list tables
 inspector: sqlalchemy.engine.reflection.Inspector = sqlalchemy.inspect(engine)
@@ -126,7 +130,7 @@ params = insert.compile().params
 print(params)
 
 ########################################################################################################################
-# add record
+# ADD RECORD
 ########################################################################################################################
 conn = engine.connect().execution_options()
 insert = students.insert().values(name="bob", lastname='lom')
@@ -134,7 +138,7 @@ result = conn.execute(insert)
 print(result.inserted_primary_key)
 
 ########################################################################################################################
-# add multiple records
+# ADD MULTIPLE RECORDS
 ########################################################################################################################
 result = conn.execute(
     students.insert(),
@@ -148,7 +152,7 @@ result = conn.execute(
 print(result.inserted_primary_key_rows)
 
 ########################################################################################################################
-# select records
+# SELECT RECORDS
 ########################################################################################################################
 selectall_orm()
 
@@ -161,7 +165,7 @@ select = sqlalchemy.sql.select([students])
 print_query(select, "SELECT FUNCTION")
 
 ########################################################################################################################
-# text sql
+# TEXT SQL
 ########################################################################################################################
 sql = sqlalchemy.sql.text("select * from students")
 print(sql)
@@ -182,7 +186,7 @@ result = conn.execute(statement, name='fab')
 print_results(result)
 
 ########################################################################################################################
-# select + text
+# SELECT + TEXT
 ########################################################################################################################
 select = sqlalchemy.sql.select(
     sqlalchemy.sql.text(
@@ -197,7 +201,7 @@ result = conn.execute(select, start="b", stop="t")
 print_results(result)
 
 ########################################################################################################################
-# select + text + and
+# SELECT + TEXT + AND
 ########################################################################################################################
 select = sqlalchemy.sql.select(
     sqlalchemy.sql.text(
@@ -220,6 +224,7 @@ result: sqlalchemy.engine.ResultProxy = conn.execute(
     stop="t",
     id=2
 )
+
 ########################################################################################################################
 # print(result.fetchone())
 # print(result.fetchall())
@@ -239,7 +244,7 @@ for row in frozen:
     print(row)
 
 ########################################################################################################################
-# aliases
+# ALIASES
 ########################################################################################################################
 select = sqlalchemy.sql.text("select * from students")
 print("select: ", select)
@@ -253,7 +258,7 @@ result = list(conn.execute(select))
 print(result)
 
 ########################################################################################################################
-# update
+# UPDATE
 ########################################################################################################################
 selectall_orm()
 
