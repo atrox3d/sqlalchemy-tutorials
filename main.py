@@ -4,6 +4,36 @@ import os
 import json
 import pprint
 
+
+def selectall(select, title):
+    print(80 * "#")
+    print(title)
+    print(80 * "#")
+
+    print("SELECT: ", select)
+
+    results = conn.execute(select)
+    print("RESULTS: ", results)
+
+    lresults = list(results)
+    print("LRESULTS: ", lresults)
+
+
+    for row in lresults:
+        print(f"{title}| ", row)
+
+    print(80 * "#")
+
+
+def selectallorm():
+    select = students.select()
+    selectall(select, "SELECT ALL")
+
+def selectalltext():
+    select = sqlalchemy.sql.text("select * from students")
+    selectall(select, "SELECT ALL TEXT")
+
+
 DB_FILENAME = 'college.db'
 
 # start from scratch
@@ -24,10 +54,6 @@ print(engine.driver)
 # print(sqlalchemy.engine.table_names())
 # deprecated
 # sqlalchemy.engine.reflection.Inspector.from_engine(engine).get_table_names()
-
-# create inspector to list tables
-inspector: sqlalchemy.engine.reflection.Inspector = sqlalchemy.inspect(engine)
-print(inspector.get_table_names())
 
 # metadata object: contains all the definitions
 meta = sqlalchemy.MetaData()
@@ -53,12 +79,15 @@ meta.create_all(engine)
 ########################################################################################################################
 # try reflection
 ########################################################################################################################
+# create inspector to list tables
+inspector: sqlalchemy.engine.reflection.Inspector = sqlalchemy.inspect(engine)
+print(inspector.get_table_names())
+
 tablenames = inspector.get_table_names()
 print(type(tablenames))
 print(tablenames)   # empty list
 tablenames = meta.tables
 pprint.pprint(tablenames.items(), indent=4)
-
 
 ########################################################################################################################
 # CRUD
@@ -71,7 +100,7 @@ print(params)
 ########################################################################################################################
 # add record
 ########################################################################################################################
-conn = engine.connect()
+conn = engine.connect().execution_options()
 insert = students.insert().values(name="bob", lastname='lom')
 result = conn.execute(insert)
 print(result.inserted_primary_key)
@@ -93,13 +122,7 @@ print(result.inserted_primary_key_rows)
 ########################################################################################################################
 # select records
 ########################################################################################################################
-select = students.select()
-print(select)
-
-result = conn.execute(select)
-print(result.fetchone())
-for row in result:
-    print(row)
+selectallorm()
 
 # select records where
 select = students.select().where(students.c.id > 2)
@@ -198,8 +221,30 @@ for row in frozen:
 ########################################################################################################################
 # aliases
 ########################################################################################################################
+select = sqlalchemy.sql.text("select * from students")
+print("select: ", select)
+results = conn.execute(select)
+print(result)
+
 alias = students.alias("a")
 select = sqlalchemy.sql.select(alias).where(alias.c.id > 2)
 print(select)
 result = list(conn.execute(select))
 print(result)
+
+########################################################################################################################
+# update
+########################################################################################################################
+selectallorm()
+
+update = students.update().where(
+    students.c.lastname == 'cat'
+).values(
+    lastname='boss'
+)
+print(update)
+print(update.compile().params)
+conn.execute(update)
+
+selectalltext()
+selectallorm()
