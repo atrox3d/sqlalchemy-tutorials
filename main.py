@@ -72,7 +72,11 @@ print(result.inserted_primary_key)
 result = conn.execute(
     students.insert(),
     dict(name='fab', lastname='cat'),
-    dict(name='one', lastname='guy')
+    dict(name='one', lastname='guy'),
+    dict(name='the', lastname='mandalorian'),
+    dict(name='anti', lastname='matter'),
+    dict(name='mark', lastname='labby'),
+    dict(name='darth', lastname='vader'),
 )
 print(result.inserted_primary_key_rows)
 
@@ -91,6 +95,12 @@ result = conn.execute(select)
 for row in result:
     print(row)
 
+# select function
+select = sqlalchemy.select([students])
+result = conn.execute(select)
+for row in result:
+    print(row)
+
 # text sql
 sql = sqlalchemy.text("select * from students")
 print(sql)
@@ -98,6 +108,20 @@ result = conn.execute(sql)
 for row in result:
     print(row)
 
+sql = sqlalchemy.text("select name, students.lastname from students where name = :name")
+print(sql)
+result = conn.execute(sql, name='fab')
+for row in result:
+    print(row)
+
+sql = sqlalchemy.text("select name, students.lastname from students where name = :name")
+print(sql)
+statement = sql.bindparams(
+    sqlalchemy.bindparam("name", type_=sqlalchemy.String)
+)
+result = conn.execute(statement, name='fab')
+for row in result:
+    print(row)
 
 
 
