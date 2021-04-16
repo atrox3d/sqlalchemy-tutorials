@@ -5,7 +5,24 @@ import json
 import pprint
 
 
-def selectall(select, title):
+def print_results(results, title="RESULTS"):
+    print("RESULTS: ", results)
+
+    lresults = list(results)
+    print("LRESULTS: ", lresults)
+
+    for row in lresults:
+        print(f"{title}| ", row)
+
+
+def print_query(select, title):
+    """
+    print select output
+
+    :param select:
+    :param title:
+    :return:
+    """
     print(80 * "#")
     print(title)
     print(80 * "#")
@@ -13,25 +30,19 @@ def selectall(select, title):
     print("SELECT: ", select)
 
     results = conn.execute(select)
-    print("RESULTS: ", results)
-
-    lresults = list(results)
-    print("LRESULTS: ", lresults)
-
-
-    for row in lresults:
-        print(f"{title}| ", row)
+    print_results(results)
 
     print(80 * "#")
 
 
 def selectallorm():
     select = students.select()
-    selectall(select, "SELECT ALL")
+    print_query(select, "SELECT ALL")
+
 
 def selectalltext():
     select = sqlalchemy.sql.text("select * from students")
-    selectall(select, "SELECT ALL TEXT")
+    print_query(select, "SELECT ALL TEXT")
 
 
 DB_FILENAME = 'college.db'
@@ -44,8 +55,8 @@ except FileNotFoundError:
 
 # create engine
 engine = sqlalchemy.create_engine(
-    f'sqlite:///{DB_FILENAME}',     # db file
-    echo=True                       # log sql statements
+    f'sqlite:///{DB_FILENAME}',  # db file
+    echo=True  # log sql statements
 )
 # print engine property
 print(engine.driver)
@@ -62,12 +73,12 @@ meta = sqlalchemy.MetaData()
 # create table and update metadata
 ########################################################################################################################
 students = sqlalchemy.Table(
-    'students',                 # table name
-    meta,                       # metadata object
-    sqlalchemy.Column(          # define table column
-        'id',                   # column name
-        sqlalchemy.Integer,     # column type
-        primary_key=True        # primary key
+    'students',  # table name
+    meta,  # metadata object
+    sqlalchemy.Column(  # define table column
+        'id',  # column name
+        sqlalchemy.Integer,  # column type
+        primary_key=True  # primary key
     ),
     sqlalchemy.Column('name', sqlalchemy.String),
     sqlalchemy.Column('lastname', sqlalchemy.String)
@@ -85,7 +96,7 @@ print(inspector.get_table_names())
 
 tablenames = inspector.get_table_names()
 print(type(tablenames))
-print(tablenames)   # empty list
+print(tablenames)  # empty list
 tablenames = meta.tables
 pprint.pprint(tablenames.items(), indent=4)
 
@@ -126,15 +137,11 @@ selectallorm()
 
 # select records where
 select = students.select().where(students.c.id > 2)
-result = conn.execute(select)
-for row in result:
-    print(row)
+print_query(select, "SELECT WHERE")
 
 # select function
 select = sqlalchemy.sql.select([students])
-result = conn.execute(select)
-for row in result:
-    print(row)
+print_query(select, "SELECT FUNCTION")
 
 ########################################################################################################################
 # text sql
@@ -142,14 +149,12 @@ for row in result:
 sql = sqlalchemy.sql.text("select * from students")
 print(sql)
 result = conn.execute(sql)
-for row in result:
-    print(row)
+print_results(result)
 
 sql = sqlalchemy.sql.text("select name, students.lastname from students where name = :name")
 print(sql)
 result = conn.execute(sql, name='fab')
-for row in result:
-    print(row)
+print_results(result)
 
 sql = sqlalchemy.sql.text("select name, students.lastname from students where name = :name")
 print(sql)
@@ -157,8 +162,7 @@ statement = sql.bindparams(
     sqlalchemy.bindparam("name", type_=sqlalchemy.String)
 )
 result = conn.execute(statement, name='fab')
-for row in result:
-    print(row)
+print_results(result)
 
 ########################################################################################################################
 # select + text
@@ -173,8 +177,7 @@ select = sqlalchemy.sql.select(
     )
 )
 result = conn.execute(select, start="b", stop="t")
-for row in result:
-    print(row)
+print_results(result)
 
 ########################################################################################################################
 # select + text + and
