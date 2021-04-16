@@ -91,3 +91,13 @@ result = conn.execute(select)
 for row in result:
     print(row)
 
+# text sql
+sql = sqlalchemy.text("select * from students")
+print(sql)
+result = conn.execute(sql)
+for row in result:
+    print(row)
+
+
+
+
