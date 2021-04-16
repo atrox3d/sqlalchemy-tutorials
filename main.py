@@ -48,7 +48,9 @@ students = sqlalchemy.Table(
 # create all tables
 meta.create_all(engine)
 
+########################################################################################################################
 # try reflection
+########################################################################################################################
 tablenames = inspector.get_table_names()
 print(type(tablenames))
 print(tablenames)   # empty list
@@ -56,19 +58,25 @@ tablenames = meta.tables
 pprint.pprint(tablenames.items(), indent=4)
 
 
+########################################################################################################################
 # CRUD
+########################################################################################################################
 insert = students.insert().values(name="bob")
 print(insert)
 params = insert.compile().params
 print(params)
 
+########################################################################################################################
 # add record
+########################################################################################################################
 conn = engine.connect()
 insert = students.insert().values(name="bob", lastname='lom')
 result = conn.execute(insert)
 print(result.inserted_primary_key)
 
+########################################################################################################################
 # add multiple records
+########################################################################################################################
 result = conn.execute(
     students.insert(),
     dict(name='fab', lastname='cat'),
@@ -80,7 +88,9 @@ result = conn.execute(
 )
 print(result.inserted_primary_key_rows)
 
+########################################################################################################################
 # select records
+########################################################################################################################
 select = students.select()
 print(select)
 
@@ -96,25 +106,27 @@ for row in result:
     print(row)
 
 # select function
-select = sqlalchemy.select([students])
+select = sqlalchemy.sql.select([students])
 result = conn.execute(select)
 for row in result:
     print(row)
 
+########################################################################################################################
 # text sql
-sql = sqlalchemy.text("select * from students")
+########################################################################################################################
+sql = sqlalchemy.sql.text("select * from students")
 print(sql)
 result = conn.execute(sql)
 for row in result:
     print(row)
 
-sql = sqlalchemy.text("select name, students.lastname from students where name = :name")
+sql = sqlalchemy.sql.text("select name, students.lastname from students where name = :name")
 print(sql)
 result = conn.execute(sql, name='fab')
 for row in result:
     print(row)
 
-sql = sqlalchemy.text("select name, students.lastname from students where name = :name")
+sql = sqlalchemy.sql.text("select name, students.lastname from students where name = :name")
 print(sql)
 statement = sql.bindparams(
     sqlalchemy.bindparam("name", type_=sqlalchemy.String)
@@ -123,5 +135,61 @@ result = conn.execute(statement, name='fab')
 for row in result:
     print(row)
 
+########################################################################################################################
+# select + text
+########################################################################################################################
+select = sqlalchemy.sql.select(
+    sqlalchemy.sql.text(
+        "name, students.lastname from students"
+    )
+).where(
+    sqlalchemy.sql.text(
+        "name between :start and :stop"
+    )
+)
+result = conn.execute(select, start="b", stop="t")
+for row in result:
+    print(row)
 
+########################################################################################################################
+# select + text + and
+########################################################################################################################
+select = sqlalchemy.sql.select(
+    sqlalchemy.sql.text(
+        "name, students.lastname from students"
+    )
+).where(
+    sqlalchemy.and_(
+        sqlalchemy.sql.text(
+            "name between :start and :stop"
+        ),
+        sqlalchemy.sql.text(
+            "id > :id"
+        ),
+    )
+)
+
+result: sqlalchemy.engine.ResultProxy = conn.execute(
+    select,
+    start="b",
+    stop="t",
+    id=2
+)
+########################################################################################################################
+# print(result.fetchone())
+# print(result.fetchall())
+# ResultProxy is closed now
+########################################################################################################################
+# TypeError: can only concatenate tuple (not "NoneType") to tuple
+# frozen = result.freeze()
+# results = frozen()
+# exit()
+########################################################################################################################
+
+# so we use lists...
+frozen = list(result)
+print(frozen)
+
+for row in frozen:
+    print(row)
 
