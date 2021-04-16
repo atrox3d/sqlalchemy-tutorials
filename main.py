@@ -42,7 +42,7 @@ def print_query(select, title):
     print(80 * "#")
 
 
-def selectallorm():
+def selectall_orm():
     """
     select all using ORM
 
@@ -150,7 +150,7 @@ print(result.inserted_primary_key_rows)
 ########################################################################################################################
 # select records
 ########################################################################################################################
-selectallorm()
+selectall_orm()
 
 # select records where
 select = students.select().where(students.c.id > 2)
@@ -255,7 +255,7 @@ print(result)
 ########################################################################################################################
 # update
 ########################################################################################################################
-selectallorm()
+selectall_orm()
 
 update = students.update().where(
     students.c.lastname == 'cat'
@@ -267,4 +267,4 @@ print(update.compile().params)
 conn.execute(update)
 
 selectalltext()
-selectallorm()
+selectall_orm()
