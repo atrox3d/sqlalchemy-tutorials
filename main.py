@@ -24,7 +24,7 @@ def print_results(results, title="RESULTS"):
 
     lresults = list(results)
     print("LRESULTS: ", lresults)
-
+    print("-"*80)
     for row in lresults:
         print(f"{title}| ", row)
 
@@ -297,7 +297,7 @@ selectall_orm()
 # DELETE
 ########################################################################################################################
 banner("DELETE")
-sdelete = students.delete()
+sdelete = students.delete().where(students.c.lastname == "lom")
 print("delete: ", sdelete)
 print("params: ", sdelete.compile().params)
 conn.execute(sdelete)
