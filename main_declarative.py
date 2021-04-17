@@ -7,9 +7,9 @@ from sqlalchemy import (
     String
 )
 from sqlalchemy.ext.declarative import declarative_base
+import sqlalchemy
 import os
 import logging
-
 
 # def disable_loggers():
 #     # logger_names = [logging.getLogger(name).name for name in logging.root.manager.loggerDict]
@@ -28,7 +28,8 @@ import logging
 #
 #
 
-LOGGER_FORMAT='%(asctime)s | %(levelname)-8s | %(name)-15s | %(funcName)10s() | %(message)s'
+LOGGER_FORMAT = '%(asctime)s | %(levelname)-8s | %(name)-15s | %(funcName)10s() | %(message)s'
+
 
 def disable_loggers_handlers():
     loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict if name != __name__]
@@ -95,8 +96,9 @@ Base.metadata.create_all(engine)
 # create session
 #
 from sqlalchemy.orm import sessionmaker
+
 Session = sessionmaker(bind=engine)
-session = Session()
+session: sqlalchemy.orm.session.Session = Session()
 customer = Customers(
     name="Fab",
     address="meow street 9",
@@ -104,4 +106,10 @@ customer = Customers(
 )
 
 session.add(customer)
+session.commit()
+
+session.add_all([
+    Customers(name="robb", address="here", email="email@gmail.com"),
+    Customers(name="frank", address="castiglione", email="punisher@gmail.com"),
+])
 session.commit()
