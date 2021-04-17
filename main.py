@@ -123,11 +123,11 @@ print("inspector.get_table_names(): ", tablenames)
 tablenames = meta.tables
 banner("TABLE NAMES")
 print(json.dumps(tablenames, indent=4, default=repr))
-quit()
 
 ########################################################################################################################
 # CRUD
 ########################################################################################################################
+banner("INSERT OBJ")
 insert = students.insert().values(name="bob")
 print("insert: ", insert)
 params = insert.compile().params
@@ -137,14 +137,18 @@ print("params: ", params)
 # ADD RECORD
 ########################################################################################################################
 banner("ADD RECORD")
-conn = engine.connect().execution_options()
+conn = engine.connect()
 insert = students.insert().values(name="bob", lastname='lom')
+print("insert: ", insert)
+params = insert.compile().params
+print("params: ", params)
 result = conn.execute(insert)
 print("result.inserted_primary_key: ", result.inserted_primary_key)
 
 ########################################################################################################################
 # ADD MULTIPLE RECORDS
 ########################################################################################################################
+banner("MULTIPLE INSERT")
 result = conn.execute(
     students.insert(),
     dict(name='fab', lastname='cat'),
@@ -172,6 +176,7 @@ print_query(select, "SELECT FUNCTION")
 ########################################################################################################################
 # TEXT SQL
 ########################################################################################################################
+banner("TEXT SQL")
 sql = sqlalchemy.sql.text("select * from students")
 print("sql: ", sql)
 result = conn.execute(sql)
@@ -193,6 +198,7 @@ print_results(result)
 ########################################################################################################################
 # SELECT + TEXT
 ########################################################################################################################
+banner("SELECT + TEXT")
 select = sqlalchemy.sql.select(
     sqlalchemy.sql.text(
         "name, students.lastname from students"
@@ -208,6 +214,7 @@ print_results(result)
 ########################################################################################################################
 # SELECT + TEXT + AND
 ########################################################################################################################
+banner("SELECT + TEXT + AND")
 select = sqlalchemy.sql.select(
     sqlalchemy.sql.text(
         "name, students.lastname from students"
@@ -250,6 +257,7 @@ for row in frozen:
 ########################################################################################################################
 # ALIASES
 ########################################################################################################################
+banner("ALIASES")
 select = sqlalchemy.sql.text("select * from students")
 print("select: ", select)
 results = conn.execute(select)
@@ -261,6 +269,7 @@ print(select)
 result = list(conn.execute(select))
 print(result)
 
+quit()
 ########################################################################################################################
 # UPDATE
 ########################################################################################################################
