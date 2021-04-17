@@ -30,7 +30,7 @@ import logging
 LOGGER_FORMAT = '%(asctime)s | %(levelname)-5s | %(name)-24s | %(funcName)10s() | %(message)s'
 
 
-def disable_loggers_handlers():
+def fix_loggers():
     loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict if name != __name__]
     for logger in loggers:
         if logger.hasHandlers():
@@ -50,26 +50,26 @@ logging.basicConfig(
     # stream=sys.stdout,
     format=LOGGER_FORMAT
 )
-LOG = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 DB_FILENAME = "sales.db"
 #
-# start from scratch
+#   start from scratch
 #
 try:
     os.remove(DB_FILENAME)
 except FileNotFoundError:
     pass
 #
-# create engine and logger
+#   create engine and logger
 #
 engine = create_engine(f"sqlite:///{DB_FILENAME}", echo=True)
 #
-# disable all handlers except root, after logger creation
+#   disable all handlers except root, after logger creation
 #
-disable_loggers_handlers()
+fix_loggers()
 #
-# obtain base class
+#   obtain base class
 #
 Base = declarative_base()
 #
@@ -84,10 +84,10 @@ class Customers(Base):
     email = Column(String)
 
 
-LOG.info("create_all")
+log.info("create_all")
 Base.metadata.create_all(engine)
 #
-# create session
+#   create session
 #
 from sqlalchemy.orm import sessionmaker
 
@@ -102,17 +102,40 @@ customer = Customers(
 session.add(customer)
 session.commit()
 
-LOG.info("add records")
+log.info("add records")
 session.add_all([
     Customers(name="robb", address="here", email="email@gmail.com"),
     Customers(name="frank", address="castiglione", email="punisher@gmail.com"),
 ])
 session.commit()
-
-LOG.info("query all")
+#
+#   select
+#
+log.info("QUERY ALL")
 query = session.query(Customers)
-LOG.info(query)
+log.info(query)
 result = query.all()
 for row in result:
-    LOG.info(f"{row.name:<6.6s}, {row.address:<15.15s}, {row.email}")
+    log.info(f"{row.id:2d}, {row.name:<6.6s}, {row.address:<15.15s}, {row.email}")
+#
+#   update
+#
+log.info("QUERY.GET")
+row = session.query(Customers).get(2)
+log.info(f"{row.id:2d}, {row.name:<6.6s}, {row.address:<15.15s}, {row.email}")
+log.info("UPDATE")
+row.address = "flamingo road"
+session.commit()
+#
+#   FIRST, EDIT, ROLLBACK
+#
+log.info("GET FIRST")
+row = session.query(Customers).first()
+log.info(f"{row.id:2d}, {row.name:<6.6s}, {row.address:<15.15s}, {row.email}")
+log.info("EDIT NAME")
+row.name = "JD"
+log.info(f"{row.id:2d}, {row.name:<6.6s}, {row.address:<15.15s}, {row.email}")
+log.info("ROLLBACK")
+session.rollback()
+log.info(f"{row.id:2d}, {row.name:<6.6s}, {row.address:<15.15s}, {row.email}")
 
