@@ -1,4 +1,3 @@
-import sys
 
 from sqlalchemy import (
     create_engine,
@@ -64,20 +63,15 @@ except FileNotFoundError:
 #
 # create engine and logger
 #
-engine = create_engine(
-    f"sqlite:///{DB_FILENAME}",
-    echo=True
-)
+engine = create_engine(f"sqlite:///{DB_FILENAME}", echo=True)
 #
-# disable all handlers except root
+# disable all handlers except root, after logger creation
 #
 disable_loggers_handlers()
 #
 # obtain base class
 #
 Base = declarative_base()
-
-
 #
 #   define class
 #
@@ -114,3 +108,11 @@ session.add_all([
     Customers(name="frank", address="castiglione", email="punisher@gmail.com"),
 ])
 session.commit()
+
+LOG.info("query all")
+query = session.query(Customers)
+LOG.info(query)
+result = query.all()
+for row in result:
+    LOG.info(f"{row.name:<6.6s}, {row.address:<15.15s}, {row.email}")
+
