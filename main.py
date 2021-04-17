@@ -6,6 +6,11 @@ import os
 import json
 import pprint
 
+def banner(text):
+    print(80 * "#")
+    print("# ", text)
+    print(80 * "#")
+
 
 def print_results(results, title="RESULTS"):
     """
@@ -32,10 +37,7 @@ def print_query(select, title):
     :param title:
     :return:
     """
-    print(80 * "#")
-    print(title)
-    print(80 * "#")
-
+    banner(title)
     print("SELECT: ", select)
 
     results = conn.execute(select)
@@ -51,7 +53,7 @@ def selectall_orm():
     :return:
     """
     select = students.select()
-    print_query(select, "SELECT ALL")
+    print_query(select, "SELECT ALL ORM")
 
 
 def selectalltext():
@@ -78,7 +80,7 @@ engine = sqlalchemy.create_engine(
     echo=True  # log sql statements
 )
 # print engine property
-print(engine.driver)
+print("engine.driver: ", engine.driver)
 
 ########################################################################################################################
 # deprecated
@@ -106,6 +108,7 @@ students = sqlalchemy.Table(
 )
 
 # create all tables
+banner("CREATE ALL")
 meta.create_all(engine)
 
 ########################################################################################################################
@@ -113,29 +116,31 @@ meta.create_all(engine)
 ########################################################################################################################
 # create inspector to list tables
 inspector: sqlalchemy.engine.reflection.Inspector = sqlalchemy.inspect(engine)
-print(inspector.get_table_names())
-
 tablenames = inspector.get_table_names()
-print(type(tablenames))
-print(tablenames)  # empty list
+print("type(inspector.get_table_names()): ", type(tablenames))
+print("inspector.get_table_names(): ", tablenames)
+
 tablenames = meta.tables
-pprint.pprint(tablenames.items(), indent=4)
+banner("TABLE NAMES")
+print(json.dumps(tablenames, indent=4, default=repr))
+quit()
 
 ########################################################################################################################
 # CRUD
 ########################################################################################################################
 insert = students.insert().values(name="bob")
-print(insert)
+print("insert: ", insert)
 params = insert.compile().params
-print(params)
+print("params: ", params)
 
 ########################################################################################################################
 # ADD RECORD
 ########################################################################################################################
+banner("ADD RECORD")
 conn = engine.connect().execution_options()
 insert = students.insert().values(name="bob", lastname='lom')
 result = conn.execute(insert)
-print(result.inserted_primary_key)
+print("result.inserted_primary_key: ", result.inserted_primary_key)
 
 ########################################################################################################################
 # ADD MULTIPLE RECORDS
@@ -149,7 +154,7 @@ result = conn.execute(
     dict(name='mark', lastname='labby'),
     dict(name='darth', lastname='vader'),
 )
-print(result.inserted_primary_key_rows)
+print("result.inserted_primary_key_rows: ", result.inserted_primary_key_rows)
 
 ########################################################################################################################
 # SELECT RECORDS
@@ -168,17 +173,17 @@ print_query(select, "SELECT FUNCTION")
 # TEXT SQL
 ########################################################################################################################
 sql = sqlalchemy.sql.text("select * from students")
-print(sql)
+print("sql: ", sql)
 result = conn.execute(sql)
 print_results(result)
 
 sql = sqlalchemy.sql.text("select name, students.lastname from students where name = :name")
-print(sql)
+print("sql: ", sql)
 result = conn.execute(sql, name='fab')
 print_results(result)
 
 sql = sqlalchemy.sql.text("select name, students.lastname from students where name = :name")
-print(sql)
+print("sql: ", sql)
 statement = sql.bindparams(
     sqlalchemy.bindparam("name", type_=sqlalchemy.String)
 )
@@ -235,7 +240,6 @@ result: sqlalchemy.engine.ResultProxy = conn.execute(
 # results = frozen()
 # exit()
 ########################################################################################################################
-
 # so we use lists...
 frozen = list(result)
 print(frozen)
