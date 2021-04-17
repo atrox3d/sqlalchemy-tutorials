@@ -28,7 +28,7 @@ import logging
 #
 #
 
-LOGGER_FORMAT = '%(asctime)s | %(levelname)-8s | %(name)-15s | %(funcName)10s() | %(message)s'
+LOGGER_FORMAT = '%(asctime)s | %(levelname)-5s | %(name)-24s | %(funcName)10s() | %(message)s'
 
 
 def disable_loggers_handlers():
@@ -108,6 +108,7 @@ customer = Customers(
 session.add(customer)
 session.commit()
 
+LOG.info("add records")
 session.add_all([
     Customers(name="robb", address="here", email="email@gmail.com"),
     Customers(name="frank", address="castiglione", email="punisher@gmail.com"),
