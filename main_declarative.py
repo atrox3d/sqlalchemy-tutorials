@@ -45,7 +45,7 @@ def fix_loggers():
 
 
 def log_rows(rows):
-    if not isinstance(rows, list):
+    if not isinstance(rows, list) and not isinstance(rows, sqlalchemy.orm.query.Query):
         rows = [rows]
 
     for row in rows:
@@ -156,10 +156,54 @@ records = session.query(Customers).filter(Customers.id != 2)
 log.info(records)
 
 log.info("UPDATE")
-count = session.query(Customers).filter(Customers.id != 2).update(
+objects = session.query(Customers).filter(Customers.id != 2)
+log_rows(objects)
+
+count = objects.update(
     {Customers.name: "Mr." + Customers.name},
     synchronize_session=False
 )
 log.info(f"UPDATED {count} objects and 0 records")
+log_rows(objects)
+
 records = session.query(Customers).all()
+log_rows(records)
+#
+#   FILTERS
+#
+log.info("EQUALITY")
+records = session.query(Customers).filter(Customers.id == 2)
+log_rows(records)
+
+log.info("DISEQUALITY")
+records = session.query(Customers).filter(Customers.id != 2)
+log_rows(records)
+
+log.info("LIKE")
+records = session.query(Customers).filter(Customers.name.like("%Fa%"))
+log_rows(records)
+
+log.info("IN")
+records = session.query(Customers).filter(Customers.id.in_([1,3]))
+log_rows(records)
+
+log.info("AND")
+records = session.query(Customers).filter(Customers.id == 2, Customers.name.like("%robb%"))
+log_rows(records)
+
+records = session.query(Customers).filter(
+    sqlalchemy.and_(
+        Customers.id == 2,
+        Customers.name.like("%robb%")
+    )
+)
+log_rows(records)
+
+log.info("OR")
+records = session.query(Customers).filter(
+    sqlalchemy.or_(
+        Customers.id == 1,
+        Customers.id == 2,
+    )
+)
 log_rows(records)
