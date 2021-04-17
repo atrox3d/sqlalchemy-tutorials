@@ -6,6 +6,7 @@ import os
 import json
 import pprint
 
+
 def banner(text):
     print(80 * "#")
     print("# ", text)
@@ -24,7 +25,7 @@ def print_results(results, title="RESULTS"):
 
     lresults = list(results)
     print("LRESULTS: ", lresults)
-    print("-"*80)
+    print("-" * 80)
     for row in lresults:
         print(f"{title}| ", row)
 
@@ -38,11 +39,7 @@ def print_query(select, title):
     :return:
     """
     banner(title)
-    print("SELECT: ", select)
-
-    results = conn.execute(select)
-    print_results(results)
-
+    conn.execute(select)
     print(80 * "#")
 
 
@@ -68,10 +65,38 @@ def selectalltext():
 
 def execute_decorator(f):
     def execute_wrapper(*args, **kwargs):
-        print("-"*80)
+        print("-" * 80)
+
+        # str_args = ", ".join(map(str, args))
+        str_args = [
+            arg
+            if type(arg) is not dict
+            else ", ".join([f"{k}={v}" for k,v in arg.items()])
+            for arg in args
+        ]
+        lkwargs = [f"{k} = {v}" for k, v in kwargs.items()]
+        str_kwargs = ", ".join(lkwargs)
+        print("ARGS  | ", str_args)
+        print("KWARGS| ", str_kwargs)
+
+        print("-" * 80)
+
+        if len(args):
+            query = args[0]
+            print("QUERY | ", query)
+            print("PARAMS| ", query.compile().params)
+
+        print("-" * 80)
+
         result = f(*args, **kwargs)
-        print("-"*80)
+        try:
+            print_results(result)
+        except sqlalchemy.exc.ResourceClosedError:
+            pass
+        print("-" * 80)
+
         return result
+
     return execute_wrapper
 
 
@@ -105,12 +130,12 @@ meta = sqlalchemy.MetaData()
 # CREATE TABLE AND UPDATE METADATA
 ########################################################################################################################
 students = sqlalchemy.Table(
-    'students',                 # table name
-    meta,                       # metadata object
-    sqlalchemy.Column(          # define table column
-        'id',                   # column name
-        sqlalchemy.Integer,     # column type
-        primary_key=True        # primary key
+    'students',  # table name
+    meta,  # metadata object
+    sqlalchemy.Column(  # define table column
+        'id',  # column name
+        sqlalchemy.Integer,  # column type
+        primary_key=True  # primary key
     ),
     sqlalchemy.Column('name', sqlalchemy.String),
     sqlalchemy.Column('lastname', sqlalchemy.String)
@@ -148,10 +173,8 @@ print("params: ", params)
 banner("ADD RECORD")
 conn = engine.connect()
 conn.execute = execute_decorator(conn.execute)
+
 insert = students.insert().values(name="bob", lastname='lom')
-print("insert: ", insert)
-params = insert.compile().params
-print("params: ", params)
 result = conn.execute(insert)
 print("result.inserted_primary_key: ", result.inserted_primary_key)
 
@@ -190,12 +213,10 @@ banner("TEXT SQL")
 sql = sqlalchemy.sql.text("select * from students")
 print("sql: ", sql)
 result = conn.execute(sql)
-print_results(result)
 
 sql = sqlalchemy.sql.text("select name, students.lastname from students where name = :name")
 print("sql: ", sql)
 result = conn.execute(sql, name='fab')
-print_results(result)
 
 sql = sqlalchemy.sql.text("select name, students.lastname from students where name = :name")
 print("sql: ", sql)
@@ -203,7 +224,6 @@ statement = sql.bindparams(
     sqlalchemy.bindparam("name", type_=sqlalchemy.String)
 )
 result = conn.execute(statement, name='fab')
-print_results(result)
 
 ########################################################################################################################
 # SELECT + TEXT
@@ -219,7 +239,6 @@ select = sqlalchemy.sql.select(
     )
 )
 result = conn.execute(select, start="b", stop="t")
-print_results(result)
 
 ########################################################################################################################
 # SELECT + TEXT + AND
@@ -269,15 +288,11 @@ for row in frozen:
 ########################################################################################################################
 banner("ALIASES")
 select = sqlalchemy.sql.text("select * from students")
-print("select: ", select)
 results = conn.execute(select)
-print(result)
 
 alias = students.alias("a")
 select = sqlalchemy.sql.select(alias).where(alias.c.id > 2)
-print(select)
 result = list(conn.execute(select))
-print(result)
 
 ########################################################################################################################
 # UPDATE
@@ -288,8 +303,6 @@ update = students.update().where(
 ).values(
     lastname='boss'
 )
-print("update: ", update)
-print("params: ", update.compile().params)
 conn.execute(update)
 
 selectall_orm()
@@ -298,7 +311,5 @@ selectall_orm()
 ########################################################################################################################
 banner("DELETE")
 sdelete = students.delete().where(students.c.lastname == "lom")
-print("delete: ", sdelete)
-print("params: ", sdelete.compile().params)
 conn.execute(sdelete)
 selectall_orm()
