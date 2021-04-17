@@ -66,6 +66,15 @@ def selectalltext():
     print_query(select, "SELECT ALL TEXT")
 
 
+def execute_decorator(f):
+    def execute_wrapper(*args, **kwargs):
+        print("-"*80)
+        result = f(*args, **kwargs)
+        print("-"*80)
+        return result
+    return execute_wrapper
+
+
 DB_FILENAME = 'college.db'
 
 # start from scratch
@@ -138,6 +147,7 @@ print("params: ", params)
 ########################################################################################################################
 banner("ADD RECORD")
 conn = engine.connect()
+conn.execute = execute_decorator(conn.execute)
 insert = students.insert().values(name="bob", lastname='lom')
 print("insert: ", insert)
 params = insert.compile().params
@@ -283,4 +293,12 @@ print("params: ", update.compile().params)
 conn.execute(update)
 
 selectall_orm()
-quit()
+########################################################################################################################
+# DELETE
+########################################################################################################################
+banner("DELETE")
+sdelete = students.delete()
+print("delete: ", sdelete)
+print("params: ", sdelete.compile().params)
+conn.execute(sdelete)
+selectall_orm()
