@@ -341,8 +341,8 @@ if __name__ == '__main__':
     banner("POPULATE ADDRESSES")
     conn.execute(
         addresses.insert(),
-        dict(st_id=1, postal_add="road xxx number 1", email_add="mail@server.com"),
-        dict(st_id=1, postal_add="road xxx number 2", email_add="mail2@server.com"),
+        dict(st_id=4, postal_add="road xxx number 1", email_add="mail@server.com"),
+        dict(st_id=4, postal_add="road xxx number 2", email_add="mail2@server.com"),
         dict(st_id=2, postal_add="road xxx number 1", email_add="mail@server.com"),
         dict(st_id=2, postal_add="road xxx number 1", email_add="mail@server.com"),
         dict(st_id=3, postal_add="road xxx number 1", email_add="mail@server.com"),
@@ -350,3 +350,13 @@ if __name__ == '__main__':
         dict(st_id=3, postal_add="road xxx number 1", email_add="mail@server.com"),
     )
     selectall_orm(addresses)
+
+    select = sqlalchemy.select([students, addresses])   # cartesiam
+    conn.execute(select)
+
+    select = sqlalchemy.select(
+        [students, addresses]
+    ).where(
+        students.c.id == addresses.c.st_id
+    )
+    conn.execute(select)
