@@ -43,13 +43,13 @@ def print_query(select, title):
     print(80 * "#")
 
 
-def selectall_orm():
+def selectall_orm(table):
     """
     select all using ORM
 
     :return:
     """
-    select = students.select()
+    select = table.select()
     print_query(select, "SELECT ALL ORM")
 
 
@@ -128,6 +128,7 @@ def create_engine():
     ########################################################################################################################
     return engine
 
+
 def create_tables(engine, meta):
     ########################################################################################################################
     # CREATE TABLE AND UPDATE METADATA
@@ -165,7 +166,6 @@ if __name__ == '__main__':
     meta = sqlalchemy.MetaData()
     students, addresses = create_tables(engine, meta)
 
-    quit()
     ########################################################################################################################
     # TRY REFLECTION
     ########################################################################################################################
@@ -217,7 +217,7 @@ if __name__ == '__main__':
     ########################################################################################################################
     # SELECT RECORDS
     ########################################################################################################################
-    selectall_orm()
+    selectall_orm(students)
 
     # select records where
     select = students.select().where(students.c.id > 2)
@@ -325,12 +325,28 @@ if __name__ == '__main__':
         lastname='boss'
     )
     conn.execute(update)
+    selectall_orm(students)
 
-    selectall_orm()
     ########################################################################################################################
     # DELETE
     ########################################################################################################################
     banner("DELETE")
     sdelete = students.delete().where(students.c.lastname == "lom")
     conn.execute(sdelete)
-    selectall_orm()
+    selectall_orm(students)
+
+    ########################################################################################################################
+    # POPULATE ADDRESSES
+    ########################################################################################################################
+    banner("POPULATE ADDRESSES")
+    conn.execute(
+        addresses.insert(),
+        dict(st_id=1, postal_add="road xxx number 1", email_add="mail@server.com"),
+        dict(st_id=1, postal_add="road xxx number 2", email_add="mail2@server.com"),
+        dict(st_id=2, postal_add="road xxx number 1", email_add="mail@server.com"),
+        dict(st_id=2, postal_add="road xxx number 1", email_add="mail@server.com"),
+        dict(st_id=3, postal_add="road xxx number 1", email_add="mail@server.com"),
+        dict(st_id=3, postal_add="road xxx number 1", email_add="mail@server.com"),
+        dict(st_id=3, postal_add="road xxx number 1", email_add="mail@server.com"),
+    )
+    selectall_orm(addresses)
