@@ -360,3 +360,5 @@ if __name__ == '__main__':
         students.c.id == addresses.c.st_id
     )
     conn.execute(select)
+    # TODO: and, or, join, union, except, ...
+
