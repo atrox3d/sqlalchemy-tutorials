@@ -1,4 +1,3 @@
-
 from sqlalchemy import (
     create_engine,
     Column,
@@ -45,6 +44,14 @@ def fix_loggers():
             logger.propagate = False
 
 
+def log_rows(rows):
+    if not isinstance(rows, list):
+        rows = [rows]
+
+    for row in rows:
+        log.info(f"{row.id:2d}, {row.name:<6.6s}, {row.address:<15.15s}, {row.email}")
+
+
 logging.basicConfig(
     level=logging.NOTSET,
     # stream=sys.stdout,
@@ -72,6 +79,8 @@ fix_loggers()
 #   obtain base class
 #
 Base = declarative_base()
+
+
 #
 #   define class
 #
@@ -115,14 +124,13 @@ log.info("QUERY ALL")
 query = session.query(Customers)
 log.info(query)
 result = query.all()
-for row in result:
-    log.info(f"{row.id:2d}, {row.name:<6.6s}, {row.address:<15.15s}, {row.email}")
+log_rows(result)
 #
 #   update
 #
 log.info("QUERY.GET")
 row = session.query(Customers).get(2)
-log.info(f"{row.id:2d}, {row.name:<6.6s}, {row.address:<15.15s}, {row.email}")
+log_rows(row)
 log.info("UPDATE")
 row.address = "flamingo road"
 session.commit()
@@ -131,11 +139,27 @@ session.commit()
 #
 log.info("GET FIRST")
 row = session.query(Customers).first()
-log.info(f"{row.id:2d}, {row.name:<6.6s}, {row.address:<15.15s}, {row.email}")
+log_rows(row)
+
 log.info("EDIT NAME")
 row.name = "JD"
-log.info(f"{row.id:2d}, {row.name:<6.6s}, {row.address:<15.15s}, {row.email}")
+log_rows(row)
+
 log.info("ROLLBACK")
 session.rollback()
-log.info(f"{row.id:2d}, {row.name:<6.6s}, {row.address:<15.15s}, {row.email}")
+log_rows(row)
+#
+#   FILTER, UPDATE
+#
+log.info("FILTER")
+records = session.query(Customers).filter(Customers.id != 2)
+log.info(records)
 
+log.info("UPDATE")
+count = session.query(Customers).filter(Customers.id != 2).update(
+    {Customers.name: "Mr." + Customers.name},
+    synchronize_session=False
+)
+log.info(f"UPDATED {count} objects and 0 records")
+records = session.query(Customers).all()
+log_rows(records)
