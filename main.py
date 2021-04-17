@@ -269,20 +269,18 @@ print(select)
 result = list(conn.execute(select))
 print(result)
 
-quit()
 ########################################################################################################################
 # UPDATE
 ########################################################################################################################
-selectall_orm()
-
+banner("UPDATE")
 update = students.update().where(
     students.c.lastname == 'cat'
 ).values(
     lastname='boss'
 )
-print(update)
-print(update.compile().params)
+print("update: ", update)
+print("params: ", update.compile().params)
 conn.execute(update)
 
-selectalltext()
 selectall_orm()
+quit()
