@@ -6,67 +6,27 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy
-import os
 import logging
-
-# def disable_loggers():
-#     # logger_names = [logging.getLogger(name).name for name in logging.root.manager.loggerDict]
-#     loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
-#     # print(loggers)
-#     # print(logger_names)
-#     for logger in loggers:
-#         if logger.name != __name__:
-#             logger.disabled = True
-#
-#
-# def list_handlers(logger: logging.Logger):
-#     if logger.hasHandlers():
-#         for h in logger.handlers:
-#             print("handler: ", h)
-#
-#
-
-LOGGER_FORMAT = '%(asctime)s | %(levelname)-5s | %(name)-24s | %(funcName)10s() | %(message)s'
-
-
-def fix_loggers():
-    loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict if name != __name__]
-    for logger in loggers:
-        if logger.hasHandlers():
-            for handler in logger.handlers:
-                # print(logger.name, handler)
-                handler.formatter = logging.Formatter(
-                    fmt=LOGGER_FORMAT
-                )
-                pass
-            # logger.handlers = []
-            # logger.propagate = True
-            logger.propagate = False
-
-
-def log_rows(rows):
-    if not isinstance(rows, list) and not isinstance(rows, sqlalchemy.orm.query.Query):
-        rows = [rows]
-
-    for row in rows:
-        log.info(f"{row.id:2d}, {row.name:<6.6s}, {row.address:<15.15s}, {row.email}")
-
+from common import (
+    LOGGER_FORMAT,
+    fix_loggers,
+    log_rows,
+    setlogger,
+    resetdb
+)
 
 logging.basicConfig(
     level=logging.NOTSET,
     # stream=sys.stdout,
     format=LOGGER_FORMAT
 )
-log = logging.getLogger(__name__)
+#
+#   set local logger and update common.external_logger
+#
+log = setlogger(logging.getLogger(__name__))
 
 DB_FILENAME = "sales.db"
-#
-#   start from scratch
-#
-try:
-    os.remove(DB_FILENAME)
-except FileNotFoundError:
-    pass
+resetdb(DB_FILENAME)
 #
 #   create engine and logger
 #
