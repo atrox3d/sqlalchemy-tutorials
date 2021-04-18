@@ -98,3 +98,7 @@ session.add_all([
 ])
 session.commit()
 #
+
+# TODO: continue lesson: https://www.tutorialspoint.com/sqlalchemy/sqlalchemy_orm_working_with_related_objects.htm
+
+
