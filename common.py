@@ -7,28 +7,50 @@ external_logger = None
 
 
 def setlogger(logger):
+    """
+    sets external module logger and returns it
+
+    :param logger:
+    :return:
+    """
     global external_logger
     external_logger = logger
     return external_logger
 
 
 def disable_loggers():
+    """
+    disable all loggers except root, main and local
+
+    :return:
+    """
     # logger_names = [logging.getLogger(name).name for name in logging.root.manager.loggerDict]
     loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
     # print(loggers)
     # print(logger_names)
     for logger in loggers:
-        if logger.name != __name__:
+        if logger.name != __name__ and logger.name != "__main__":
             logger.disabled = True
 
 
 def list_handlers(logger: logging.Logger):
+    """
+    lists logger's handlers
+
+    :param logger:
+    :return:
+    """
     if logger.hasHandlers():
         for h in logger.handlers:
             print("handler: ", h)
 
 
 def fix_loggers():
+    """
+    sets handler format and propagation for all loggers except root, main and local
+
+    :return:
+    """
     loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict if name != __name__ and name != "__main__"]
     for logger in loggers:
         if logger.hasHandlers():
@@ -44,6 +66,12 @@ def fix_loggers():
 
 
 def log_rows(rows):
+    """
+    logs rows of current result
+
+    :param rows:
+    :return:
+    """
     if not isinstance(rows, list) and not isinstance(rows, sqlalchemy.orm.query.Query):
         rows = [rows]
 
@@ -52,6 +80,12 @@ def log_rows(rows):
 
 
 def resetdb(filename):
+    """
+    delete db on start
+
+    :param filename:
+    :return:
+    """
     import os
     #
     #   start from scratch
