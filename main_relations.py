@@ -53,8 +53,28 @@ class Customers(Base):
     email = Column(String)
 
 
+class Invoice(Base):
+    __tablename__ = "invoices"
+
+    id = Column(Integer, primary_key=True)
+    custid = Column(Integer, sqlalchemy.ForeignKey('customers.id'))
+    invno = Column(Integer)
+    amount = Column(Integer)
+    customer = sqlalchemy.orm.relationship(
+        "Customer",
+        back_populates="invoices"
+    )
+
+
+Customers.invoices = sqlalchemy.orm.relationship(
+    "Invoice",
+    order_by=Invoice.id,
+    back_populates="customers"
+)
 log.info("create_all")
 Base.metadata.create_all(engine)
+exit()
+
 #
 #   create session
 #
