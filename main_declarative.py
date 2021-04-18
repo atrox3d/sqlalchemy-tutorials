@@ -77,26 +77,27 @@ session.add_all([
     Customers(name="frank", address="castiglione", email="punisher@gmail.com"),
 ])
 session.commit()
-#
-#   select
-#
+
+########################################################################################################################
+#   SELECT
+########################################################################################################################
 log.info("QUERY ALL")
 query = session.query(Customers)
 log.info(query)
 result = query.all()
 log_rows(result)
-#
-#   update
-#
+########################################################################################################################
+#   UPDATE
+########################################################################################################################
 log.info("QUERY.GET")
 row = session.query(Customers).get(2)
 log_rows(row)
 log.info("UPDATE")
 row.address = "flamingo road"
 session.commit()
-#
+########################################################################################################################
 #   FIRST, EDIT, ROLLBACK
-#
+########################################################################################################################
 log.info("GET FIRST")
 row = session.query(Customers).first()
 log_rows(row)
@@ -108,9 +109,9 @@ log_rows(row)
 log.info("ROLLBACK")
 session.rollback()
 log_rows(row)
-#
+########################################################################################################################
 #   FILTER, UPDATE
-#
+########################################################################################################################
 log.info("FILTER")
 records = session.query(Customers).filter(Customers.id != 2)
 log.info(records)
@@ -128,9 +129,9 @@ log_rows(objects)
 
 records = session.query(Customers).all()
 log_rows(records)
-#
+########################################################################################################################
 #   FILTERS
-#
+########################################################################################################################
 log.info("EQUALITY")
 records = session.query(Customers).filter(Customers.id == 2)
 log_rows(records)
